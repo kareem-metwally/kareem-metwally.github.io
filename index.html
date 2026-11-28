@@ -350,7 +350,9 @@
   function deleteGaCookies(){
     var found = document.cookie.split(";").map(function(c){ return c.split("=")[0].trim(); }).filter(function(n){ return n.indexOf("_ga") === 0; });
     var names = found.length ? found : ["_ga", "_ga_QD25LKXJTJ"];
-    var domains = [location.hostname, "." + location.hostname];
+    var parts = location.hostname.split(".");
+    var domains = [];
+    for (var i = 0; i < parts.length - 1; i++) { var d = parts.slice(i).join("."); domains.push(d); domains.push("." + d); }
     names.forEach(function(n){
       domains.forEach(function(d){
         document.cookie = n + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=" + d;
