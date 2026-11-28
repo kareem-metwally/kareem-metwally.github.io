@@ -348,7 +348,8 @@
   function choice(){ try { return localStorage.getItem(KEY); } catch(e){ return null; } }
   function save(v){ try { localStorage.setItem(KEY, v); } catch(e){} }
   function deleteGaCookies(){
-    var names = ["_ga", "_ga_QD25LKXJTJ"];
+    var found = document.cookie.split(";").map(function(c){ return c.split("=")[0].trim(); }).filter(function(n){ return n.indexOf("_ga") === 0; });
+    var names = found.length ? found : ["_ga", "_ga_QD25LKXJTJ"];
     var domains = [location.hostname, "." + location.hostname];
     names.forEach(function(n){
       domains.forEach(function(d){
@@ -372,6 +373,7 @@
   });
   var settingsBtn = document.getElementById("privacy-settings");
   if (settingsBtn) { settingsBtn.addEventListener("click", function(){ show(); }); }
+  if (choice() === "denied") { deleteGaCookies(); setTimeout(deleteGaCookies, 3000); }
   if (choice() === null) { show(); }
 })();
 </script>
