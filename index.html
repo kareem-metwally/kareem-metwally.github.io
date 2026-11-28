@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QD25LKXJTJ"></script>
+  <!-- Google Analytics (GA4): loads ONLY after the visitor accepts in the consent banner below. No Google requests or cookies happen before that. -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag("js", new Date());
-    gtag("config", "G-QD25LKXJTJ");
+    window.__gaLoad = function(){
+      if (window.__gaLoaded) return;
+      window.__gaLoaded = true;
+      var s = document.createElement("script");
+      s.async = true;
+      s.src = "https://www.googletagmanager.com/gtag/js?id=G-QD25LKXJTJ";
+      document.head.appendChild(s);
+      gtag("js", new Date());
+      gtag("config", "G-QD25LKXJTJ");
+    };
+    if (localStorage.getItem("ga-consent") === "granted") { window.__gaLoad(); }
   </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -291,7 +299,7 @@
     </div>
   </section>
 <footer class="footer">
-  <p>&copy; 2026 Kareem Metwally</p>
+  <p>&copy; 2026 Kareem Metwally &middot; <button type="button" id="privacy-settings" class="privacy-link">Privacy settings</button></p>
 </footer>
 
 <style>
@@ -310,6 +318,62 @@
 <script>
 /* keep chat launcher above the Netlify badge */
 (function(){var css=".pb-launcher{bottom:84px!important}.pb-tip{bottom:158px!important}.pb-panel{bottom:156px!important;height:min(660px,calc(100dvh - 180px))!important}@media(max-width:480px){.pb-panel{bottom:0!important;height:100dvh!important}}";var n=0,t=setInterval(function(){var h=document.getElementById("mysitegpt-widget");if(h&&h.shadowRoot){if(!h.shadowRoot.getElementById("kfix")){var s=document.createElement("style");s.id="kfix";s.textContent=css;h.shadowRoot.appendChild(s)}clearInterval(t)}if(++n>120)clearInterval(t)},500)})();
+</script>
+
+<style>
+#consent-banner{position:fixed;left:20px;bottom:20px;z-index:10000;max-width:460px;background:#141414;border:1px solid #e3c17e;border-radius:14px;padding:22px 24px;box-shadow:0 10px 34px rgba(0,0,0,.6);color:#e8e6e1;font:15px/1.6 Inter,Arial,sans-serif;display:none}
+#consent-banner.show{display:block}
+#consent-banner h3{margin:0 0 8px;font:600 17px Playfair Display,Georgia,serif;color:#e3c17e}
+#consent-banner p{margin:0 0 14px;color:#cfccc4;font-size:14px}
+#consent-banner a{color:#e3c17e}
+.consent-actions{display:flex;gap:12px}
+.consent-actions button{flex:1;padding:12px 10px;border-radius:8px;font:600 14px Inter,Arial,sans-serif;cursor:pointer;border:1px solid #e3c17e}
+#consent-accept{background:#e3c17e;color:#161616}
+#consent-decline{background:transparent;color:#e3c17e}
+.privacy-link{background:none;border:none;color:#e3c17e;font:inherit;cursor:pointer;text-decoration:underline;padding:0}
+@media(max-width:520px){#consent-banner{left:12px;right:12px;bottom:12px;max-width:none}.consent-actions{flex-direction:column}}
+</style>
+<div id="consent-banner" role="dialog" aria-labelledby="consent-title" aria-live="polite">
+  <h3 id="consent-title">Analytics consent</h3>
+  <p>This site uses Google Analytics to count visits. If you accept, Google (Alphabet) receives your IP address, device and browsing information on my behalf, and Google Analytics cookies are stored on your device. If you decline, nothing is sent to Google and no analytics cookies are set. You can change your choice anytime from "Privacy settings" at the bottom of this page. Questions: <a href="mailto:kareem_metwally@yahoo.com">kareem_metwally@yahoo.com</a>.</p>
+  <div class="consent-actions">
+    <button type="button" id="consent-accept">Accept analytics</button>
+    <button type="button" id="consent-decline">Decline</button>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY = "ga-consent";
+  var banner = document.getElementById("consent-banner");
+  function choice(){ try { return localStorage.getItem(KEY); } catch(e){ return null; } }
+  function save(v){ try { localStorage.setItem(KEY, v); } catch(e){} }
+  function deleteGaCookies(){
+    var names = ["_ga", "_ga_QD25LKXJTJ"];
+    var domains = [location.hostname, "." + location.hostname];
+    names.forEach(function(n){
+      domains.forEach(function(d){
+        document.cookie = n + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=" + d;
+        document.cookie = n + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+      });
+    });
+  }
+  function show(){ banner.classList.add("show"); }
+  function hide(){ banner.classList.remove("show"); }
+  document.getElementById("consent-accept").addEventListener("click", function(){
+    save("granted");
+    hide();
+    if (window.__gaLoad) window.__gaLoad();
+  });
+  document.getElementById("consent-decline").addEventListener("click", function(){
+    save("denied");
+    hide();
+    deleteGaCookies();
+    if (window.__gaLoaded) { location.reload(); }
+  });
+  var settingsBtn = document.getElementById("privacy-settings");
+  if (settingsBtn) { settingsBtn.addEventListener("click", function(){ show(); }); }
+  if (choice() === null) { show(); }
+})();
 </script>
 </body>
 </html>
